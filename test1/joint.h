@@ -1,18 +1,19 @@
 #ifndef JOINT_H
 #define JOINT_H
 //define class joint
-class joint
+class Joint
 {
 private:
-	float phase;
-	float angle;
-	float offset;
-	float p[4];		//whether to set p[4] here
+	float _phase;
+	float _angle;
+	float _offset;
+	float _p[4];		//whether to set p[4] here
 public:
 	//good to make seperate set and get for each menber.
 	//set join's parameters
-	void joint(float phase, float offset, float p1, float p2, float p3, float p4); // empty structure
-	void renew_phase(joint neibour_joint); // 
+	Joint();
+	Joint(float phase, float offset, float p1, float p2, float p3, float p4); // empty structure
+	void renew_phase(Joint neibour_joint); // 
 
 	//set function
 	void set_phase( float );    //set phase
@@ -28,6 +29,12 @@ public:
 	//output parameters of joint
 	//good to return but not cout, cout can be used when testing. like: cout<<"xxxxxx"<<joint.get_param.
 	float get_joinParam(); // return all param in once
+	//
+	//
+	//
+	//!!!!!!!!!!!!!!!!!!!!!!!新东西
+	void update(vector<pair<float,float>> update_param);//TODO：有了phi_i和phi_ij，更新phase和angle
+	float get_phi();//取得phi
 };
 
 #endif
