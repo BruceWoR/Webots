@@ -1,0 +1,39 @@
+fuction.cpp:
+	【v1】 first edition, contain basic class definition and details.
+
+function(1).cpp:
+	【v2】 second eddition, trying to isolate the definition and details in different files, as def in .h, details in .cpp
+
+joint.cpp/.h:
+	 most upper class of joint.
+	 derivative class:
+	 	{
+	 		joint_sin.cpp/.h:
+	 			{
+	 				using one point to generate the other 3 points to limn the sine_like output function;
+	 			}
+	 		joint_ran.cpp/.h
+	 			{
+	 				using 4 random points to depict the random_like output function; 
+	 			}
+	 	}
+particle.cpp/.h:
+	a class contain the parameters used to optimize.
+net.h:
+	another try to define network	
+
+TEST1:
+	first testing to use fixed output wave to optimize the bias network!
+	in this test, I've defined another class particle(contain only bias parameters).
+
+TEST2:
+	written by Zeng Wenyuan, rebuild the network by using map vector.
+	The network contains Node(Joint), Edge(Joint, Bias), Network(Node, Edge).
+
+******************************************************************************
+Date: Dec 4, 2014
+1. Add PSO, 
+2. Redifine the structure particle,
+3. Need to care:
+	all original part use particle, take care of the interfaces.
+	all funtion calling(using reference).

@@ -150,6 +150,7 @@ void main()
 	std::vector<particle>::iterator it_all;
 	particle_all p_all;
 	//动态生成新的结构体对象（生成时自动初始化），并存入particle_all中。
+	Pglobal P_best;
 	struct particle *p;
 	for (int i = 0; i < P_N; ++i)
 	{
@@ -269,7 +270,7 @@ void main()
 			//calculate fitness
 			fitness(particle_all[i]);
 		}
-
+		renew_particle(particle_all, P_best);
 		//renew particle
 	}
 
@@ -372,7 +373,7 @@ void wb_servo_set_position_sync(WbDeviceTag tag, double target, int delay)
 	}
 	while (fabs(target - effective) > DELTA && delay > 0);
 }	
-float fitness(particle p)
+float fitness(particle &p) //TODO: reference
 {
 	//using GPS c++ API p299 to obtian original position and current position
 	//double current[3];
