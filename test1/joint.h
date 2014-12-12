@@ -1,5 +1,7 @@
 #ifndef JOINT_H
 #define JOINT_H
+
+extern  const PI;//TODO: define an global value.
 //define class joint
 class Joint
 {
@@ -7,13 +9,13 @@ private:
 	float _phase;
 	float _angle;
 	float _offset;
-	float _p[4];		//whether to set p[4] here
+	float _p[4];
+	float _wave[100];		//
 public:
 	//good to make seperate set and get for each menber.
 	//set join's parameters
 	Joint();
 	Joint(float phase, float offset, float p1, float p2, float p3, float p4); // empty structure
-	void renew_phase(Joint neibour_joint); // 
 
 	//set function
 	void set_phase( float );    //set phase

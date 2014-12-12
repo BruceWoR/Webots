@@ -1,22 +1,25 @@
+#include "renew_particle.h"
+#include "particle.h"
+#include <time.h>
+#include <stdlib.h>
+using namespace std;
+
 #define C1 1
-#define C2 2 //???
+#define C2 2 
 const dim 3;
-struct Pglobal
+
+Pglobal::Pglobal()
 {
-	float Pg[dim];
-	float fit_best;
-	Pglobal()
+	for (int i = 0; i < dim; ++i)
 	{
-		for (int i = 0; i < dim; ++i)
-		{
-			Pg[i] = 0;
-		}
-		fit_best = 0;
+		Pg[i] = 0;
 	}
-};
-void renew_particle(std::vector<particle> all, Pglobal P) //是否为引用?
+	fit_best = 0;
+}
+
+void renew_particle(std::vector<particle> all, Pglobal &P)
 {
-	seekP_best(all, Pg); //TODO
+	seekP_best(all, P); //TODO
 	std::vector<particle>::iterator it_all;
 	it_all = all.end();
 	for (int j = 0; j < it_all; ++j)
@@ -27,14 +30,11 @@ void renew_particle(std::vector<particle> all, Pglobal P) //是否为引用?
 						   C1*rand()%100*0.01*(all[j].Pi[i] - all[j].Xi[i])+
 		    			   C2*rand()%100*0.01*(P.Pg[i] - all[j].Xi[i]);
 			all[j].Xi[i] = all[j].Xi[i] + all[j].Vi[i];
-			/* code */
 		}
-
-		/* code */
 	}
 }
-//TODO not sure reference array is right or wrong.
-void seekP_best(vector<particle> &v, Pglobal &P) 
+
+void seekP_best(vector<particle> v, Pglobal &P)
 {
 	std::vector<particle>::iterator it_all;
 	it_all = v.end();
@@ -45,11 +45,10 @@ void seekP_best(vector<particle> &v, Pglobal &P)
 		{
 			for (int j = 0; j < dim; ++j)
 			{
-				p.Pg[j] = v[i].X[j];
-				p.fit_best = v[i].fit_better;
+				P.Pg[j] = v[i].X[j];
+				P.fit_best = v[i].fit_better;
 				/* code */
 			}
 		}
 	}
-
 }

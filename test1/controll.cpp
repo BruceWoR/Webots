@@ -4,8 +4,8 @@
 *Date:		Nov  5th, 2014
 *update:    gen frontal_knee/ankle data.
 *			add fitness function
-*
-*
+*Date:      Dec 12th, 2014
+*			include p_to_net.h
 */
 #include <webots/robot.h>
 #include <webots/servo.h>
@@ -14,118 +14,39 @@
 #include <webots/GPS.hpp>
 
 #include <iostream>
-#include <stdlib>
+#include <stdlib.h>
 #include <utility>
 #include <vector>
 
 #include "particle.h"
-#include "joint_sin.h"
-#include "joint_ran.h"
-
+#include "renew_particle.h"
+#include "joint.h"
+#include "network.h"
+#include "p_to_net.h"
 using namespace std;
 
 const TIME_STEP = 64;  // used in wb_servo_set_position_sync();
-const PI = 3.1415926;
 const P_N = 1000;  // p_N is number of particle
 const G_N = 300;  //G_N is number of generation.
-/*------------------------------------------------------------
-------------------------------------------------------------*/
-/*------------------------------------------------------------
 
-------------------------------------------------------------*/
 static WbDeviceTag joint_tag[25];  // all the servos
 
 void main()
 {
-	//??is possible to change network to static, define them outside main();
-	//generate five joint;
+	/*
 	joint lateral_hip();       //num 2
 	joint lateral_ankle();		//num 6		
 	joint frontal_hip();		//num 3
 	joint frontal_knee();		//num 4
 	joint frontal_ankle();		//num 5
+	
 	//easy to access by order;
-	std::vector<joint> joint_five;
-	joint_five.push_back(lateral_hip);
-	joint_five.push_back(frontal_hip);
-	joint_five.push_back(frontal_knee);
-	joint_five.push_back(frontal_ankle);
-	joint_five.push_back(lateral_ankle);
-	/* num of joint indicate the sequence in the vector
-	#define lateral_ankle j1
-	#define lateral_hip   j2
-	#define frotal_hip    j3
-	#define frontal_knee  j4
-	#define frontal_ankle j5
-	*/
-
-	//initialize joints
-	lateral_ankle.set_amplitude(9.0);
-	lateral_ankle.set_firstpoint(0.17);
-	lateral_ankle.set_p4w();
-	lateral_ankle.set_offset(0);
-
-	lateral_hip.set_amplitude(9.0);
-	lateral_hip.set_firstpoint(0.17);
-	lateral_hip.set_p4w();
-	lateral_hip.set_offset(0);
+	initial Joint and Network;
+	-----------------------------------------------*/
+	Network net;
+	initial_network(net);
 	
-	frontal_hip.set_amplitude(52.1);
-	frontal_hip.set_firstpoint(0.21);
-	frontal_hip.set_p4w();
-	frontal_hip.set_offset(30.0);
-
-	frontal_knee.set_p4w(0.02, 38, 0.58, 12.25, 0.84, 32.5, 41.5);  //need to write joint_ran function, x of the last point is 1. 
-	frontal_knee.set_offset(0);
-	frontal_ankle.set_p4w(0.28, 28.0, 0.57, -15.0, 0.62, -27.0, -22.0); 
-	frontal_ankle.set_offset(0);
-	// generate the unique network, node, side. and initialize it as 0.
-	std::vector<SIDE> node;
-	std::vector<node> network;
-	std::vector<node>::iterator it_net;
-
-	struct side
-	{
-		float bias;
-		joint joint_i;//?? is it right?
-	/* data */
-	};
-	
-	network net;
-	
-	node j1_node;
-	node j2_node;
-	node j3_node;
-	node j4_node;
-	node j5_node;
-
-	side s_12 {-(PI/2), j2};  // notice the data type!!!
-	side s_21 { PI/2, j1 };
-	side s_23 {0, j3};
-	side s_32 {0, j2};
-	side s_34 {0, j4};
-	side s_43 {0, j3};
-	side s_45 {0, j5};
-	side s_54 {0, j4};
-	
-	j1_node.push_back(s_12);
-	j2_node.push_back(s_21);
-	j2_node.push_back(s_23);
-	j3_node.push_back(s_32);
-	j3_node.push_back(s_34);
-	j4_node.push_back(s_43);
-	j4_node.push_back(s_45);
-	j5_node.push_back(s_54);
-	
-	net.push_back(j1_node);
-	net.push_back(j2_node);
-	net.push_back(j3_node);
-	net.push_back(j4_node);
-	net.push_back(j5_node);
-	
-	/* data structure for storing bias particle   10.24 
-	wish to use STRUCT to store particle.
-	use VECTOR to store all particles.
+	/* 
 	--------------------------------------------------*/
 	static WbDeviceTag emitter, left_touch, right_touch, gps;   // seems not used here.
 	static double motor_position[] = { 0.0, /* body */
@@ -147,15 +68,15 @@ void main()
 	generate all particle and initialze them.
 	*/ 
 	std::vector<particle> particle_all;
-	std::vector<particle>::iterator it_all;
+	std::vector<particle>::iterator it_all;//TODO??
 	particle_all p_all;
 	//动态生成新的结构体对象（生成时自动初始化），并存入particle_all中。
-	Pglobal P_best;
+	Pglobal P_best; //store the global best value of all particles.
 	struct particle *p;
 	for (int i = 0; i < P_N; ++i)
 	{
-		p = new partical a;    // is it right???
-		particle_all.push_back(p);  // p or &p???
+		p = new partical a;    // TODO:is it right???
+		particle_all.push_back(p);
 	}
 	it_all = particle_all.end();
 	for (int i = 0; i < G_N; ++i)
@@ -165,12 +86,7 @@ void main()
 			//pass values from particle to network
 			// exist problem: how to access vector elements????
 			//here we change the side, will node and net change???
-			s_23 = particle_all[i].side23;
-			s_32 = -(s_23);
-			s_34 = particle_all[i].side34;
-			s_43 = -(s_34);
-			s_45 = particle_all[i].side45;
-			s_54 = -(s_45);			
+					
 			//interact with model.
 
 			/* initialize the webots controller library */
@@ -379,13 +295,14 @@ float fitness(particle &p) //TODO: reference
 	//double current[3];
 	//original[i], predifined on the top of codes!!!
 	//current[i] = getValues(gps);
-	fit = sqrt( (current[0]-original[0])*(current[0]-original[0])
+	float fit = sqrt( (current[0]-original[0])*(current[0]-original[0])
 			+(current[2]-original[2])*(current[2]-original[2]) )
 			-sqrt((current[0]-original[0])*(current[0]-original[0]);
 	p.fit_now = fit;
 	if(p.fit_now > p.fit_better)
 	{
 		p.fit_better = p.fit_now;
+		p.renew_Pi();  // renew the local best value Pi.
 	}
 }
 	
